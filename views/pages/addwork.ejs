@@ -1,0 +1,51 @@
+<html>
+	<head>
+		<% include ../partials/head %>
+	</head>
+	<body>
+		<header>
+			<% include ../partials/header %>
+		</header>
+		
+		<main>
+			<% if(messages.error){ %>
+				<div class = "message error">
+					<%= messages.error %>
+				</div>
+			<% } %>
+			<% if(messages.msg){ %>
+				<div class = "message success">
+					<%= messages.msg %>
+				</div>
+			<% } %>
+			<div class = "center">
+				<form action = "#" method = "POST">
+					<input type = "date" name = "date" value = "<%= today %>">
+					<div>
+						<label class="radiobutton small">
+							<input type="radio" name="pass" value="day" checked><span class = "blueish">Dag</span>
+						</label>
+						<label class="radiobutton small">
+							<input type="radio" name="pass" value="middle"><span class = "yellow">Mellan</span>
+						</label>
+						<label class="radiobutton small">
+							<input type="radio" name="pass" value="night"><span class = "orange">Kväll</span>
+						</label>
+					</div>
+					<div>
+						<% lager.forEach(function(lagerObj){ %>
+							<label class="radiobutton small">
+								<input type="radio" name="lager" value="<%= lagerObj.id %>"><span class = "yellow"><%= lagerObj.name %></span>
+							</label>
+						<% }); %>
+					</div>
+					<input type = "submit" value = "Add workday">
+				</form>
+			</div>
+		</main>
+		
+		<footer>
+			<% include ../partials/footer %>
+		</footer>
+	</body>
+</html>

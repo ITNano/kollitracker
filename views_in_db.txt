@@ -1,0 +1,45 @@
+CREATE VIEW workhours AS SELECT W.user_id AS user_id, W.date AS date, ((SELECT SUM(TIME_TO_SEC(TIMEDIFF(W2.end, W2.start))) FROM workday W2 WHERE W2.date = W.date)-(SELECT SUM(TIME_TO_SEC(TIMEDIFF(B.end, B.start))) FROM breaks B WHERE B.date = W.date))/3600 AS hours FROM workday W ORDER BY date
+CREATE VIEW workweek AS SELECT user_id, WEEK(date, 1) AS week, SUM(hours) AS hours FROM workhours GROUP BY WEEK(date, 1)
+CREATE VIEW currentplock AS SELECT user_id, DATE(stamp) AS date, TIME(stamp) AS time, MAX(kolli) AS kolli FROM plock GROUP BY DATE(stamp)
+CREATE VIEW dayprogress AS SELECT W.user_id AS user_id, W.date AS date, ElapsedTime(W.date, W.start, W.end)-SUM(ElapsedTime(B.date, B.start, B.end)) as time FROM workday W LEFT JOIN breaks B ON W.date = B.date GROUP BY W.date
+
+
+DROP FUNCTION IF EXISTS ElapsedTime;
+DELIMITER $$
+CREATE FUNCTION ElapsedTime( date DATE, start TIME, end TIME )
+RETURNS FLOAT
+
+BEGIN
+    IF CURDATE() = date THEN
+        RETURN GREATEST(0, LEAST(TIME_TO_SEC(TIMEDIFF(CURTIME(), start)), TIME_TO_SEC(TIMEDIFF(end, start))))/3600;
+    ELSEIF CURDATE() < date THEN
+        RETURN 0;
+    ELSE
+        RETURN TIME_TO_SEC(TIMEDIFF(end, start))/3600;
+    END IF;
+END;$$
+DELIMITER ;
+
+
+
+DROP FUNCTION IF EXISTS IsThisWeek;
+DELIMITER $$
+CREATE FUNCTION IsThisWeek( date DATE )
+RETURNS BOOL
+
+BEGIN
+    RETURN WEEK(date, 1) = WEEK(CURDATE(), 1);
+END;$$
+DELIMITER ;
+
+
+
+DROP FUNCTION IF EXISTS IsToday;
+DELIMITER $$
+CREATE FUNCTION IsToday( date DATE )
+RETURNS BOOL
+
+BEGIN
+    RETURN date = CURDATE();
+END;$$
+DELIMITER ;

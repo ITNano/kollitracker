@@ -1,0 +1,74 @@
+<html>
+	<head>
+		<% include ../partials/head %>
+	</head>
+	<body>
+		<header>
+			<% include ../partials/header %>
+		</header>
+		
+		<main>
+			<div id = "addCheckpoint">
+				<% include ../partials/addcheckpoint %>
+			</div>
+			<div class = "center">Active UID: <span class = "activeUID"><%= uid %></span></div>
+			<div class = "center">
+				<% lager.forEach(function(lagerObj){ %>
+					<a href = "/?lager=<%= lagerObj.id %>">
+						<label class="radiobutton small">
+							<input type="radio" name="lager" value="<%= lagerObj.id %>" onchange = "window.location.href = '/?lager=<%= lagerObj.id %>';"<% if(lagerObj.id == selectedLager){ %>checked<% } %>>
+							<span class = "blueish"><%= lagerObj.name %></span>
+						</label>
+					</a>
+				<% }); %>
+			</div>
+			
+			<div class = "center progress-wrapper">
+				Progress day (kollin)
+				<div class="progress">
+					<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="<%= stats.day.progress.kolli %>" aria-valuemin="0" aria-valuemax="100" style="width:<%= stats.day.progress.kolli %>%">
+						<%= stats.day.progress.kolli %>% (<%= stats.day.kolli %>)
+					</div>
+				</div>
+			</div>
+			
+			<div class = "center progress-wrapper">
+				Progress day (time)
+				<div class="progress">
+					<div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="<%= stats.day.progress.time %>" aria-valuemin="0" aria-valuemax="100" style="width:<%= stats.day.progress.time %>%">
+						<%= stats.day.progress.time %>%
+					</div>
+				</div>
+			</div>
+			
+			<div class = "center progress-wrapper">
+				Progress week (kollin)
+				<div class="progress">
+					<div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="<%= stats.week.progress.kolli %>" aria-valuemin="0" aria-valuemax="100" style="width:<%= stats.week.progress.kolli %>%">
+						<%= stats.week.progress.kolli %>% (<%= stats.week.kolli %>)
+					</div>
+				</div>
+			</div>
+			
+			<div class = "center progress-wrapper">
+				Progress week (time)
+				<div class="progress">
+					<div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="<%= stats.week.progress.time %>" aria-valuemin="0" aria-valuemax="100" style="width:<%= stats.week.progress.time %>%">
+						<%= stats.week.progress.time %>%
+					</div>
+				</div>
+			</div>
+			
+			<div class = "center">
+				You are now <span class = "minBefore"><%= stats.day.progress.extratime %></span> minutes in front of the snitt today.
+			</div>
+			<div class = "center">
+				You are now <span class = "minBefore"><%= stats.week.progress.extratime %></span> minutes in front of the snitt for the entire week.
+			</div>
+		</main>
+		
+		<footer>
+			<% include ../partials/footer %>
+		</footer>
+	</body>
+</html>

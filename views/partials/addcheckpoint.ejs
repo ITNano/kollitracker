@@ -1,0 +1,18 @@
+<% if(messages.error){ %>
+	<div class = "message error">
+		<%= messages.error %>
+	</div>
+<% } %>
+<% if(messages.msg){ %>
+	<div class = "message success">
+		<%= messages.msg %>
+	</div>
+<% } %>
+<div class = "center">
+	<form action = "#" method = "POST">
+		<input type = "number" class = "large" name = "uppdrag" placeholder = "Uppdrag"><br>
+		<input type = "number" class = "large" name = "rader" placeholder = "Rader"><br>
+		<input type = "number" class = "large" name = "kollin" placeholder = "Kollin"><br>
+		<input type = "submit" class = "wide" value = "Set checkpoint">
+	</form>
+</div>
