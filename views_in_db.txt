@@ -1,6 +1,33 @@
-CREATE VIEW workhours AS SELECT W.user_id AS user_id, W.lager_id AS lager_id, W.date AS date, ((SELECT SUM(TIME_TO_SEC(TIMEDIFF(W2.end, W2.start))) FROM workday W2 WHERE W2.date = W.date AND W2.lager_id = W.lager_id)-(SELECT SUM(TIME_TO_SEC(TIMEDIFF(B.end, B.start))) FROM breaks B WHERE B.date = W.date AND B.start >= W.start AND B.end <= W.end))/3600 AS hours FROM workday W GROUP BY date, lager_id ORDER BY date
-CREATE VIEW currentplock AS SELECT user_id, lager_id, DATE(stamp) AS date, TIME(stamp) AS time, MAX(kolli) AS kolli FROM plock GROUP BY DATE(stamp),lager_id
-CREATE VIEW dayprogress AS SELECT W.user_id AS user_id, W.lager_id AS lager_id, W.date AS date, ElapsedTime(W.date, W.start, W.end)-SUM(ElapsedTime(B.date, B.start, B.end)) as time FROM workday W LEFT JOIN breaks B ON W.date = B.date AND B.start >= W.start AND B.end <= W.end GROUP BY W.date,lager_id
+CREATE VIEW shifthours AS
+SELECT W.user_id AS user_id, W.lager_id AS lager_id, W.date AS date, 
+((SELECT IFNULL(TIME_TO_SEC(TIMEDIFF(W.end, W.start)), 0))
+-
+(SELECT IFNULL(SUM(TIME_TO_SEC(TIMEDIFF(B.end, B.start))), 0) FROM breaks B WHERE B.date = W.date AND IsWithinTime(B.start, W.start, W.end) AND IsWithinTime(B.end, W.start, W.end))
+)/3600 AS hours FROM workday W
+GROUP BY W.id, date, lager_id, user_id
+ORDER BY date;
+
+
+DROP VIEW IF EXISTS workhours;
+CREATE VIEW workhours AS
+SELECT S.user_id AS user_id, S.lager_id AS lager_id, S.date AS date, SUM(S.hours) AS hours
+FROM shifthours S
+GROUP BY S.user_id, S.date, S.lager_id;
+
+DROP VIEW IF EXISTS currentplock;
+CREATE VIEW currentplock AS
+SELECT P.user_id AS user_id, P.lager_id AS lager_id, DATE(P.stamp) AS date, TIME(P.stamp) AS time, P.kolli AS kolli FROM plock P
+LEFT JOIN workday W ON W.date = DATE(stamp) AND IsWithinTime(TIME(P.stamp), W.start, W.end) AND W.user_id = P.user_id
+LEFT OUTER JOIN plock P2 ON DATE(P.stamp) = DATE(P2.stamp) AND IsWithinTime(TIME(P2.stamp), W.start, W.end) AND W.user_id = P.user_id AND P2.kolli > P.kolli
+WHERE P2.id IS NULL
+GROUP BY W.id
+ORDER BY time;
+
+DROP VIEW IF EXISTS dayprogress;
+CREATE VIEW dayprogress AS
+SELECT W.user_id AS user_id, W.lager_id AS lager_id, W.date AS date, IFNULL((SELECT SUM(ElapsedTime(W2.date, W2.start, W2.end)) FROM workday W2 WHERE W.date = W2.date AND W.lager_id = W2.lager_id), 0)-IFNULL(SUM(ElapsedTime(B.date, B.start, B.end)), 0) as time FROM workday W
+LEFT JOIN breaks B ON W.date = B.date AND B.start >= W.start AND B.end <= W.end
+GROUP BY W.date,lager_id;
 
 
 DROP FUNCTION IF EXISTS ElapsedTime;
@@ -40,5 +67,18 @@ RETURNS BOOL
 
 BEGIN
     RETURN date = CURDATE();
+END;$$
+DELIMITER ;
+
+
+
+
+DROP FUNCTION IF EXISTS IsWithinTime;
+DELIMITER $$
+CREATE FUNCTION IsWithinTime( testtime TIME, start TIME, end TIME )
+RETURNS BOOL
+
+BEGIN
+    RETURN TIMEDIFF(testtime, start)>=0 AND TIMEDIFF(testtime, end)<=0;
 END;$$
 DELIMITER ;

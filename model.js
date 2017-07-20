@@ -63,7 +63,7 @@ exports.getCurrentStats = function(uid, lager, callback){
 		data["day"]["hours"] = getProperty(results, "hours");
 		db.query("SELECT IFNULL(SUM(hours), 0) AS hours FROM workhours WHERE user_id = ? AND lager_id = ? AND IsThisWeek(date)", [uid, lager], function(results){
 			data["week"]["hours"] = getProperty(results, "hours");
-			db.query("SELECT IFNULL(kolli, 0) AS kolli FROM currentplock WHERE IsToday(date) AND user_id = ? AND lager_id = ?", [uid, lager], function(results){
+			db.query("SELECT IFNULL(SUM(kolli), 0) AS kolli FROM currentplock WHERE IsToday(date) AND user_id = ? AND lager_id = ?", [uid, lager], function(results){
 				data["day"]["kolli"] = getProperty(results, "kolli");
 				db.query("SELECT IFNULL(SUM(kolli), 0) AS kolli FROM currentplock WHERE IsThisWeek(date) AND user_id = ? AND lager_id = ?", [uid, lager], function(results){
 					data["week"]["kolli"] = getProperty(results, "kolli");
