@@ -34,7 +34,7 @@ app.get('/', function(req, res, next){
 	}
 });
 app.post('/', function(req, res, next){
-	model.addPlock(req.cookies.uid, req.query.lager, req.body.uppdrag, req.body.rader, req.body.kollin, function(results){
+	model.addPlock(req.cookies.uid, getActiveLager(req), req.body.uppdrag, req.body.rader, req.body.kollin, function(results){
 		passMessage(req, results.error, results.msg, "Registered plock");
 		res.redirect('/');
 	});
