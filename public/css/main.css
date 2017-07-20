@@ -94,6 +94,10 @@ select{
 .center{
 	text-align:center;
 }
+.nomargin{
+	margin:0px;
+	padding:0px;
+}
 
 label.radiobutton{
 	display:inline-block;
@@ -155,11 +159,18 @@ label.radiobutton:hover{
 	background-color:#64ae11;
 	color:#fff;
 }
+.button.small{
+	width:30px;
+}
 .button.rounded{
 	border-radius:4px;
 }
 .button.round{
 	border-radius:50%;
+	padding:0px;
+}
+.button.red{
+	background-color:#A01010;
 }
 .message{
 	width:250px;
@@ -200,6 +211,11 @@ label.radiobutton:hover{
 	right:30px;
 	width:300px;
 	height:400px;
+}
+#worklist{
+	position:absolute;
+	top:80px;
+	right:60px;
 }
 .progress{
 	width: 40%;

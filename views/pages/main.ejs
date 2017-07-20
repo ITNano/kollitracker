@@ -11,6 +11,12 @@
 			<div id = "addCheckpoint">
 				<% include ../partials/addcheckpoint %>
 			</div>
+			<div>
+				<a href = "/addwork">
+					<input type = "submit" class = "wide" value = "&lArr; Add work days">
+				</a>
+			</div>
+			
 			<div class = "center">Active UID: <span class = "activeUID"><%= uid %></span></div>
 			<div class = "center">
 				<% lager.forEach(function(lagerObj){ %>
@@ -27,7 +33,7 @@
 				Progress day (kollin)
 				<div class="progress">
 					<div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="<%= stats.day.progress.kolli %>" aria-valuemin="0" aria-valuemax="100" style="width:<%= stats.day.progress.kolli %>%">
-						<%= stats.day.progress.kolli %>% (<%= stats.day.kolli %>)
+						<%= stats.day.progress.kolli %>% (<%= stats.day.kolli %> / <%= stats.day.expectedkolli %>)
 					</div>
 				</div>
 			</div>
@@ -45,7 +51,7 @@
 				Progress week (kollin)
 				<div class="progress">
 					<div class="progress-bar progress-bar-warning" role="progressbar" aria-valuenow="<%= stats.week.progress.kolli %>" aria-valuemin="0" aria-valuemax="100" style="width:<%= stats.week.progress.kolli %>%">
-						<%= stats.week.progress.kolli %>% (<%= stats.week.kolli %>)
+						<%= stats.week.progress.kolli %>% (<%= stats.week.kolli %> / <%= stats.week.expectedkolli %>)
 					</div>
 				</div>
 			</div>
@@ -60,10 +66,10 @@
 			</div>
 			
 			<div class = "center">
-				You are now <span class = "minBefore"><%= stats.day.progress.extratime %></span> minutes in front of the snitt today.
+				Du ligger <span class = "minBefore"><%= stats.day.progress.extratime %></span> minuter före snittet idag.
 			</div>
 			<div class = "center">
-				You are now <span class = "minBefore"><%= stats.week.progress.extratime %></span> minutes in front of the snitt for the entire week.
+				Du ligger <span class = "minBefore"><%= stats.week.progress.extratime %></span> minuter före snittet över hela veckan.
 			</div>
 		</main>
 		

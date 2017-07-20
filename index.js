@@ -23,9 +23,12 @@ app.get('/', function(req, res, next){
 	if(!req.cookies.uid){
 		res.redirect('/login');
 	}else{
+		if(req.query.lager){
+			res.cookie('lager', req.query.lager);
+		}
 		model.getLager(function(lager){
-			model.getCurrentStats(req.cookies.uid, req.query.lager, function(results){
-				res.render('pages/main', {title: 'Main stats', uid:req.cookies.uid, stats: results, lager: lager, selectedLager: req.query.lager ? req.query.lager : 2});
+			model.getCurrentStats(req.cookies.uid, getActiveLager(req), function(results){
+				res.render('pages/main', {title: 'Main stats', uid:req.cookies.uid, stats: results, lager: lager, selectedLager: getActiveLager(req)});
 			});
 		});
 	}
@@ -38,16 +41,32 @@ app.post('/', function(req, res, next){
 });
 app.get('/addwork', function(req, res, next){
 	model.getLager(function(results){
-		res.render('pages/addwork', {title: 'Add work day to user', today: dateformat(new Date(), "yyyy-mm-dd"), lager: results});
+		model.getWorkShifts(req.cookies.uid, function(shifts){
+			res.render('pages/addwork', {title: 'Add work day to user', today: dateformat(new Date(), "yyyy-mm-dd"), lager: results, workshifts: shifts});
+		});
 	});
 });
 app.post('/addwork', function(req, res, next){
-	var times = {day:{start:"06:30:00", end: "15:15:00", breaks: [{start: "08:30:00", end: "08:45:00"}, {start: "12:35:00", end: "13:05:00"}]}, middle: {start:"10:45:00", end: "18:45:00", breaks: [{start: "12:35:00", end: "13:05:00"}, {start: "15:15:00", end: "15:30:00"}]}, night: {start: "15:15:00", end: "23:15:00", breaks: [{start: "18:45:00", end: "19:15:00"}]}};
-	var time = times[req.body.pass];
-	model.addWorkday(req.cookies.uid, req.body.lager, req.body.date, time.start, time.end, time.breaks, function(results){
+	var lager = req.body.lager ? req.body.lager : 2;
+	var times = {day:[[{lager: 2, start:"06:30:00", end:"10:45:00", breaks:[{start:"08:30:00", end:"08:45:00"}]}, {lager: 1, start:"10:45:00", end:"15:15:00", breaks:[{start: "12:35:00", end: "13:05:00"}]}],
+					  [{lager: 2, start:"06:30:00", end: "15:15:00", breaks: [{start: "08:30:00", end: "08:45:00"}, {start: "12:35:00", end: "13:05:00"}]}]],
+				middle:[[{lager: 1, start:"10:45:00", end: "15:15:00", breaks: [{start: "12:35:00", end: "13:05:00"}]}, {lager: 2, start:"15:15:00", end:"18:45:00", breaks:[{start:"15:15:00", end:"15:30:00"}]}],
+						[{lager: 2, start:"10:45:00", end: "18:45:00", breaks: [{start: "12:35:00", end: "13:05:00"}, {start: "15:15:00", end: "15:30:00"}]}]],
+				night: [[],
+					   [{start: "15:15:00", end: "23:15:00", breaks: [{start: "18:45:00", end: "19:15:00"}]}]]};
+	var shifts = times[req.body.pass][lager-1];
+	model.addWorkday(req.cookies.uid, req.body.date, shifts, function(results){
 		passMessage(req, results.error, results.msg, "Added day to user");
 		res.redirect('/addwork');
 	});
+});
+app.post('/removework', function(req, res, next){
+	if(req.body.removeid){
+		model.removeWorkday(req.cookies.uid, req.body.removeid, function(results){
+			passMessage(req, results.error, results.msg, "Removed day from user");
+			res.redirect('/addwork');
+		});
+	}
 });
 app.get('/logout', function(req, res, next){
 	res.clearCookie('uid');
@@ -75,4 +94,8 @@ httpServer.listen(1340, function(){
 function passMessage(req, error, onError, onSuccess){
 	if(error) req.flash('error', onError);
 	else req.flash('msg', onSuccess);
+}
+
+function getActiveLager(req){
+	return req.query.lager ? req.query.lager : (req.cookies.lager ? req.cookies.lager : 2);
 }

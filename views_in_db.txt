@@ -1,7 +1,6 @@
-CREATE VIEW workhours AS SELECT W.user_id AS user_id, W.date AS date, ((SELECT SUM(TIME_TO_SEC(TIMEDIFF(W2.end, W2.start))) FROM workday W2 WHERE W2.date = W.date)-(SELECT SUM(TIME_TO_SEC(TIMEDIFF(B.end, B.start))) FROM breaks B WHERE B.date = W.date))/3600 AS hours FROM workday W ORDER BY date
-CREATE VIEW workweek AS SELECT user_id, WEEK(date, 1) AS week, SUM(hours) AS hours FROM workhours GROUP BY WEEK(date, 1)
-CREATE VIEW currentplock AS SELECT user_id, DATE(stamp) AS date, TIME(stamp) AS time, MAX(kolli) AS kolli FROM plock GROUP BY DATE(stamp)
-CREATE VIEW dayprogress AS SELECT W.user_id AS user_id, W.date AS date, ElapsedTime(W.date, W.start, W.end)-SUM(ElapsedTime(B.date, B.start, B.end)) as time FROM workday W LEFT JOIN breaks B ON W.date = B.date GROUP BY W.date
+CREATE VIEW workhours AS SELECT W.user_id AS user_id, W.lager_id AS lager_id, W.date AS date, ((SELECT SUM(TIME_TO_SEC(TIMEDIFF(W2.end, W2.start))) FROM workday W2 WHERE W2.date = W.date)-(SELECT SUM(TIME_TO_SEC(TIMEDIFF(B.end, B.start))) FROM breaks B WHERE B.date = W.date AND B.start >= W.start AND B.end <= W.end))/3600 AS hours FROM workday W ORDER BY date
+CREATE VIEW currentplock AS SELECT user_id, lager_id, DATE(stamp) AS date, TIME(stamp) AS time, MAX(kolli) AS kolli FROM plock GROUP BY DATE(stamp),lager_id
+CREATE VIEW dayprogress AS SELECT W.user_id AS user_id, W.lager_id AS lager_id, W.date AS date, ElapsedTime(W.date, W.start, W.end)-SUM(ElapsedTime(B.date, B.start, B.end)) as time FROM workday W LEFT JOIN breaks B ON W.date = B.date AND B.start >= W.start AND B.end <= W.end GROUP BY W.date,lager_id
 
 
 DROP FUNCTION IF EXISTS ElapsedTime;
