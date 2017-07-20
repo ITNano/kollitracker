@@ -33,7 +33,13 @@ function addBreaks(uid, date, breaks, callback){
 }
 
 exports.removeWorkday = function(uid, shift_id, callback){
-	db.query("DELETE FROM workday WHERE id = ? AND user_id = ?", [shift_id, uid], callback);
+	db.query("SELECT date FROM workday WHERE id = ? AND user_id = ?", [shift_id, uid], function(results){
+		if(results.length > 0){
+			db.query("DELETE FROM breaks WHERE date = ?;DELETE FROM workday WHERE id = ? AND user_id = ?", [results[0].date, shift_id, uid], callback);
+		}else{
+			callback({error: true, msg: "Could not find the work shift you asked for"});
+		}
+	});
 };
 
 exports.getWorkShifts = function(uid, callback){

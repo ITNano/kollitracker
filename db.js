@@ -9,7 +9,7 @@ var connection;
 var dbParams;
 
 exports.connect = function(host, user, pw, db){
-	dbParams = {host: host, user: user, password: pw, database: db};
+	dbParams = {host: host, user: user, password: pw, database: db, multipleStatements: true};
 	doConnect();
 }
 
