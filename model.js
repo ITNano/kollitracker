@@ -89,12 +89,14 @@ function processStats(stats, callback){
 	stats["day"]["progress"]["kolli"] = safePercentCount(stats["day"]["kolli"], stats["snitt"]*stats["day"]["hours"]);
 	stats["day"]["progress"]["time"] = safePercentCount(stats["day"]["hoursPassed"], stats["day"]["hours"]);
 	stats["day"]["progress"]["extratime"] = Math.round((stats["day"]["kolli"]-stats["snitt"]*stats["day"]["hoursPassed"])/stats["snitt"]*60);
-	stats["day"]["expectedkolli"] = stats["snitt"]*stats["day"]["hours"];
+	stats["day"]["progress"]["snitt"] = stats["day"]["hoursPassed"] == 0 ? 0 : Math.round(stats["day"]["kolli"]/stats["day"]["hoursPassed"]);
+	stats["day"]["expectedkolli"] = Math.round(stats["snitt"]*stats["day"]["hours"]);
 	stats["week"]["progress"] = {};
 	stats["week"]["progress"]["kolli"] = safePercentCount(stats["week"]["kolli"], stats["snitt"]*stats["week"]["hours"]);
 	stats["week"]["progress"]["time"] = safePercentCount(stats["week"]["hoursPassed"], stats["week"]["hours"]);
 	stats["week"]["progress"]["extratime"] = Math.round((stats["week"]["kolli"]-stats["snitt"]*stats["week"]["hoursPassed"])/stats["snitt"]*60);
-	stats["week"]["expectedkolli"] = stats["snitt"]*stats["week"]["hours"];
+	stats["week"]["progress"]["snitt"] = stats["week"]["hoursPassed"] == 0 ? 0 : Math.round(stats["week"]["kolli"]/stats["week"]["hoursPassed"]);
+	stats["week"]["expectedkolli"] = Math.round(stats["snitt"]*stats["week"]["hours"]);
 	callback(stats);
 }
 
