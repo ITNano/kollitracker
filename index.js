@@ -19,19 +19,40 @@ app.set('view engine', 'ejs');
 
 var model = require('./model'), dateformat = require("dateformat");
 
-app.get('/', function(req, res, next){
-	if(!req.cookies.uid){
+app.get('/login', function(req, res, next){
+	res.render('pages/login', {title: 'Login'});
+});
+app.post('/login', function(req, res, next){
+	if(req.body.uid || req.body.uid.length == 0){
+		res.cookie('uid', req.body.uid);
+		res.redirect('/');
+	}else{
+		req.flash('error', 'No username supplied');
+		res.redirect('/login');
+	}
+});
+app.get('/logout', function(req, res, next){
+	res.clearCookie('uid');
+	res.redirect('/login');
+});
+
+app.use(function(req, res, next){
+	if(!req.cookies.uid && !req.body.uid){
 		res.redirect('/login');
 	}else{
-		if(req.query.lager){
-			res.cookie('lager', req.query.lager);
-		}
-		model.getLager(function(lager){
-			model.getCurrentStats(req.cookies.uid, getActiveLager(req), function(results){
-				res.render('pages/main', {title: 'Main stats', uid:req.cookies.uid, stats: results, lager: lager, selectedLager: getActiveLager(req)});
-			});
-		});
+		next();
 	}
+});
+
+app.get('/', function(req, res, next){
+	if(req.query.lager){
+		res.cookie('lager', req.query.lager);
+	}
+	model.getLager(function(lager){
+		model.getCurrentStats(req.cookies.uid, getActiveLager(req), function(results){
+			res.render('pages/main', {title: 'Main stats', uid:req.cookies.uid, stats: results, lager: lager, selectedLager: getActiveLager(req)});
+		});
+	});
 });
 app.post('/', function(req, res, next){
 	model.addPlock(req.cookies.uid, getActiveLager(req), req.body.uppdrag, req.body.rader, req.body.kollin, function(results){
