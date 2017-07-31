@@ -89,22 +89,10 @@ app.post('/removework', function(req, res, next){
 		});
 	}
 });
-app.get('/logout', function(req, res, next){
-	res.clearCookie('uid');
-	res.redirect('/login');
-});
-
-app.get('/login', function(req, res, next){
-	res.render('pages/login', {title: 'Login'});
-});
-app.post('/login', function(req, res, next){
-	if(req.body.uid || req.body.uid.length == 0){
-		res.cookie('uid', req.body.uid);
-		res.redirect('/');
-	}else{
-		req.flash('error', 'No username supplied');
-		res.redirect('/login');
-	}
+app.get('/showweek', function(req, res, next){
+	model.getWeekStats(req.cookies.uid, function(results){
+		res.render('pages/showweek', {title: 'Week stats', stats: results.stats, lager: results.lager});
+	});
 });
 
 httpServer.listen(1340, function(){

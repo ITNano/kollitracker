@@ -82,6 +82,24 @@ exports.getCurrentStats = function(uid, lager, callback){
 		});
 	});
 };
+exports.getWeekStats = function(uid, callback){
+	var data = {};
+	db.query("SELECT L.name AS name FROM workday W LEFT JOIN lager L ON L.id = W.lager_id WHERE W.user_id = ? AND IsThisWeek(W.date) GROUP BY L.id ORDER BY L.id", [uid], function(results){
+		data.lager = results;
+		db.query("SELECT L.name AS lager, D.name AS weekday, DATE_FORMAT(W.date, '%Y-%m-%d') AS date, W.start AS start, W.end AS end, IFNULL(P.kolli, IF(W.date<CURDATE(), -1, 0)) AS kolli FROM days D LEFT JOIN lager L ON 1=1 LEFT JOIN workday W ON WEEKDAY(W.date) = D.index AND IsThisWeek(W.date) AND W.user_id = ? AND L.id = W.lager_id LEFT JOIN currentplock P ON P.lager_id = W.lager_id AND P.date = W.date AND IsWithinReasonableTime(P.time, W.start, W.end) ORDER BY D.index, L.id", [uid], function(results){
+			data.stats = [];
+			var day, index = 0;
+			results.forEach(function(res){
+				if(res.weekday != day){
+					data.stats[++index] = [];
+					day = res.weekday;
+				}
+				data.stats[index].push(res);
+			});
+			callback(data);
+		});
+	});
+};
 
 function processStats(stats, callback){
 	var data = {day:{}, week:{}};

@@ -1,0 +1,50 @@
+<html>
+	<head>
+		<% include ../partials/head %>
+	</head>
+	<body>
+		<header>
+			<% include ../partials/header %>
+		</header>
+		
+		<main>
+			<h2>
+				Stats of the week
+			</h2>
+			<div class = "row">
+				<div class = "cell_wrapper">
+					<div class = "cell cell_head vertical_cell_head">
+					</div>
+				</div>
+				<% lager.forEach(function(lagerObj){ %>					
+					<div class = "cell_wrapper">
+						<div class = "cell cell_head center">
+							<%= lagerObj.name %>
+						</div>
+					</div>
+				<% }); %>
+			</div>
+			<% stats.forEach(function(dayStats){ %>
+				<div class = "row">
+					<div class = "cell_wrapper">
+						<div class = "cell cell_head vertical_cell_head">
+							<%= dayStats[0].weekday %>
+						</div>
+					</div>
+				<% dayStats.forEach(function(dayStat){ %>
+					<div class = "cell_wrapper">
+						<div class = "cell center">
+							<div class = "workhours"><% if(dayStat.start){ %><%= dayStat.start %> - <%= dayStat.end %><% } %></div>
+							<div class = "plockvalue"><% if(dayStat.kolli>0){ %><%= dayStat.kolli %><% } %></div>
+						</div>
+					</div>
+				<% }); %>
+				</div>
+			<% }); %>
+		</main>
+		
+		<footer>
+			<% include ../partials/footer %>
+		</footer>
+	</body>
+</html>

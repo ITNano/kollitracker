@@ -67,7 +67,7 @@ input[type=submit]{
 	margin-top:5px;
 }
 input[type=button].wide,input[type=submit].wide{
-	width:125px;
+	width:140px;
 }
 input[type=button]:disabled,input[type=submit]:disabled{
 	background-color:#a0a0a0;
@@ -195,6 +195,19 @@ label.radiobutton:hover{
 }
 
 /* ------------------------------------------------------------------ */
+div.row{
+	width:60%;
+	margin:auto;
+}
+div.cell_wrapper{
+	float:left;
+	width:33%;
+}
+div.cell_head{
+	font-size:18px;
+}
+
+/* ------------------------------------------------------------------ */
 .activeUID{
 	font-size:20px;
 	color:#008000;
@@ -212,6 +225,11 @@ label.radiobutton:hover{
 	width:300px;
 	height:400px;
 }
+#navigation{
+	position:fixed;
+	top: 60px;
+	left:30px;
+}
 #worklist{
 	position:absolute;
 	top:80px;
@@ -225,4 +243,27 @@ label.radiobutton:hover{
 .progress-wrapper{
 	margin-top:20px;
 	margin-bottom:20px;
+}
+.workhours{
+	font-size:10px;
+}
+.plockvalue{
+	font-size:16px;
+}
+.cell_head{
+	height:36px;
+	line-height:36px;
+	vertical-align:middle;
+}
+.vertical_cell_head{
+	padding-left:20px;
+}
+.cell{
+	margin:4px 0px;
+}
+.stats_value{
+	font-weight:bold;
+}
+.row:nth-child(odd){
+	background-color:#eeeeee;
 }

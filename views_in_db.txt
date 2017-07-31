@@ -17,8 +17,8 @@ GROUP BY S.user_id, S.date, S.lager_id;
 DROP VIEW IF EXISTS currentplock;
 CREATE VIEW currentplock AS
 SELECT P.user_id AS user_id, P.lager_id AS lager_id, DATE(P.stamp) AS date, TIME(P.stamp) AS time, P.kolli AS kolli FROM plock P
-LEFT JOIN workday W ON W.date = DATE(stamp) AND IsWithinTime(TIME(P.stamp), W.start, W.end) AND W.user_id = P.user_id
-LEFT OUTER JOIN plock P2 ON DATE(P.stamp) = DATE(P2.stamp) AND IsWithinTime(TIME(P2.stamp), W.start, W.end) AND W.user_id = P.user_id AND P2.kolli > P.kolli
+LEFT JOIN workday W ON W.date = DATE(stamp) AND IsWithinReasonableTime(TIME(P.stamp), W.start, W.end) AND W.user_id = P.user_id
+LEFT OUTER JOIN plock P2 ON DATE(P.stamp) = DATE(P2.stamp) AND IsWithinReasonableTime(TIME(P2.stamp), W.start, W.end) AND W.user_id = P.user_id AND P2.kolli > P.kolli
 WHERE P2.id IS NULL
 GROUP BY W.id
 ORDER BY time;
@@ -80,5 +80,28 @@ RETURNS BOOL
 
 BEGIN
     RETURN TIMEDIFF(testtime, start)>=0 AND TIMEDIFF(testtime, end)<=0;
+END;$$
+DELIMITER ;
+
+
+
+
+DROP FUNCTION IF EXISTS IsWithinReasonableTime;
+DELIMITER $$
+CREATE FUNCTION IsWithinReasonableTime( testtime TIME, start TIME, end TIME )
+RETURNS BOOL
+
+BEGIN
+    RETURN IsWithinTime(testtime, start, ADDTIME(end, '00:10:00'));
+END;$$
+DELIMITER ;
+
+
+DROP FUNCTION IF EXISTS FirstDayOfWeek;
+DELIMITER $$
+CREATE FUNCTION FirstDayOfWeek(day DATE)
+RETURNS DATE DETERMINISTIC
+BEGIN
+  RETURN SUBDATE(day, WEEKDAY(day));
 END;$$
 DELIMITER ;
